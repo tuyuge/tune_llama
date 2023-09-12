@@ -9,16 +9,18 @@ from model_center.tokenizer import LlamaTokenizer
 from model_center.generation.llama import LlamaBeamSearch
 from model_center.dataset import DistributedDataLoader
 from InstructionDataset import Alpaca_Dataset
-
+from LoraLLaMa import LoraLLaMa
 
 def setup_model_and_optimizer():
     model_path = f"/data_new/private/tuyuge/results/llama-7b"
+    plmpath = f"/data_new/private/tuyuge/results/finetune-llama-Alpaca-1.pt"
 
     tokenizer = LlamaTokenizer.from_pretrained(model_path)
     bmt.synchronize()
 
     st = time()
-    model = Llama.from_pretrained(model_path)
+    model = LoraLLaMa(plmpath)
+    bmt.load(model, plmpath, strict=False)
     bmt.synchronize()
     bmt.print_rank('model loading time:', time()-st)
 
