@@ -40,7 +40,7 @@ class BottleneckAdapterLayer(bmt.DistributedModule):
     def forward(self, x):
         self.act = nn.ReLU()
         output = F.linear(self.act(F.linear(x, self.down_proj)), self.up_proj)
-        return output
+        return output + x
         
 
 class AdapterLLaMa(nn.Module):

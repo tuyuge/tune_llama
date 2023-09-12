@@ -102,21 +102,21 @@ class LoraLLaMa(nn.Module):
 
         for name, module in self.model.named_modules(): 
             if name.endswith("self_att.self_attention.project_q"):
-                bmt.print_rank("add lora to", name)
+                # bmt.print_rank("add lora to", name)
                 module.forward_old = module.forward
                 module.layer_no = int(name.split(".")[-4])
                 module.forward = types.MethodType(q_lora_linear_forward, module)
             elif name.endswith("self_att.self_attention.project_v"):
-                bmt.print_rank("add lora to", name)
+                # bmt.print_rank("add lora to", name)
                 module.forward_old = module.forward
                 module.layer_no = int(name.split(".")[-4])
                 module.forward = types.MethodType(v_lora_linear_forward, module)
 
 
-    def forward(self, input_ids, length, attention_mask):
+    def forward(self, input_ids, attention_mask, **kwargs):
         output = self.model(
             input_ids = input_ids,
-            length = length,
-            attention_mask = attention_mask
+            attention_mask = attention_mask,
+            **kwargs
         )
         return output

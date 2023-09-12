@@ -54,7 +54,7 @@ def get_learning_rate_scheduler(args, optimizer):
 def setup_model_and_optimizer(args):
     tokenizer = LlamaTokenizer.from_pretrained(args.model_config)
     # change model from here
-    model = LoraLLaMa(args)
+    model = LoraLLaMa(args.model_config+'/pytorch_model.pt')
     bmt.synchronize()
     optimizer = get_optimizer(args, model)
     lr_scheduler = get_learning_rate_scheduler(args, optimizer)
@@ -80,19 +80,18 @@ def finetune(args, model, optimizer, lr_scheduler, dataset):
 
     print_inspect(model, '*')
 
-    for epoch in range(4):
+    for epoch in range(args.epochs):
         dataloader = DistributedDataLoader(dataset, batch_size=args.batch_size, shuffle=True)
         # set to training mode
         model.train()
 
         for it, data in enumerate(dataloader):
             input_ids = data["input_ids"]
-            length = data["length"]
             attention_mask = data["attention_mask"]
             targets = data["targets"] 
 
 
-            logits = model(input_ids, length, attention_mask).logits
+            logits = model(input_ids, attention_mask).logits
             batch, seq_len, vocab_out_size = logits.size()
             loss = loss_func(logits.view(batch * seq_len, vocab_out_size), targets.view(batch * seq_len))
 
@@ -117,8 +116,7 @@ def finetune(args, model, optimizer, lr_scheduler, dataset):
                 )
             )
             if it % args.inspect_iters == 0: print_inspect(model, "*")
-            if args.save != None and it % args.save_iters == 0:
-                bmt.save(model, os.path.join(args.save, args.save_name+("-%d.pt" % it)))
+        bmt.save(model, os.path.join(args.save, args.save_name+("-%d.pt" % epoch)))
 
 
 def main():

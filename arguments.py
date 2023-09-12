@@ -21,7 +21,7 @@ def add_training_args(parser: argparse.ArgumentParser):
                        help='Path to a directory containing a model checkpoint.')
     group.add_argument('--save', type=str, default='/data_new/private/tuyuge/results',
                        help='Output directory to save checkpoints to.')
-    group.add_argument('--save-name', type=str, default='finetune-llama-alpaca',
+    group.add_argument('--save-name', type=str, default='finetune-llama-alpaca-epoch',
                        help='Output filename to save checkpoints to.')
     group.add_argument('--save-iters', type=int, default=1000,
                        help='number of iterations between saves')
